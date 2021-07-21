@@ -7,12 +7,14 @@ def save_pdf(writer, name, mkdirs):
     """ Saves out the pdf splits """
 
     file_name = f'{name}.pdf'
+    # check wheather to create a directory or not
     if mkdirs:
         try:
             os.mkdir(name)
             file_name = f'{name}/{name}.pdf'
 
         except Exception as e:
+            # folder alreader existed
             file_name = f'{name}/{name}.pdf'
 
     with open(file_name, 'wb') as f:
@@ -20,7 +22,7 @@ def save_pdf(writer, name, mkdirs):
 
 
 def split_by_row(row, pdf= None, mkdir= True):
-    """ Split the pdf based on row  """
+    """ Split the pdf based on dataframe rows  """
     name, start, end = row['name'], row['start'], row['end']
     name= name.strip()
     writer = PdfFileWriter()
@@ -31,7 +33,7 @@ def split_by_row(row, pdf= None, mkdir= True):
     print(f'{name:20} | {start:5} | {end:5}')
 
 def splitter(mkdir= True, pdf= None, df= None):
-    """ Use loaded files to split. """
+    """ Use loaded files to begin spliting files. """
 
     df.apply( split_by_row,
               axis= 1, 
@@ -39,15 +41,18 @@ def splitter(mkdir= True, pdf= None, df= None):
               mkdir= mkdir)
 
 def main(pdf_file, csv_file, no_dirs = False):
+    """ Read in files, ie. the datafame and the pdf.  """
+
     df = pd.read_csv(csv_file)
     df = df[['name', 'start', 'end']]  
+
     print('Splits DataFrame Loaded...')
 
     pdf  = PdfFileReader(open(pdf_file, 'rb'))
     print('Pdf Loaded...\n')
 
     splitter(df= df, pdf= pdf, mkdir= not no_dirs)
-
+    print('Splitting completed successfully. Bye.')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -59,5 +64,3 @@ if __name__ == '__main__':
     args = parser.parse_args() 
     
     main( args.PdfInput, args.CsvInput, no_dirs= args.no_dirs)
-
-
